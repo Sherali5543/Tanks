@@ -1,4 +1,10 @@
 """
+GUI object has been made, implementing will be a bit annoying with current setup
+Will probably require restructuring code
+-Current issue is that pygame display is made outside of every function so need to run that after 
+making the gui selection
+
+Fix collision as sometimes get stuck in the wall and can only move out after fiddling with it
 Create Enemy AI
 Add "animation" for treads?
 
@@ -13,12 +19,15 @@ import random
 import sys
 import time
 import math
+import gui
 
 # Initialize Window
 WIDTH = 1200
 HEIGHT = WIDTH * 9/16
-WIN = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption('Tanks!')
+def init():
+    global WIN 
+    WIN = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption('Tanks!')
 
 # Load Images
 GREEN_TANK = pygame.transform.scale(pygame.image.load("./assets/green_tank.png"), (15*5, 16*5))
@@ -220,6 +229,7 @@ class Obstacle():
         # window.blit(self.mask.to_surface(),self.pos)
 
 def main():
+    print('start')
     playing = True
     clock = pygame.time.Clock()
     players = [Player(100, HEIGHT/2, False, GREEN_TANK)]
@@ -306,7 +316,6 @@ def main():
 
     # game loop
     while playing:
-
         redraw()
 
         # if quit, end process
@@ -316,7 +325,7 @@ def main():
         
         velx = vel*math.cos(players[0].face*math.pi/180)
         vely = vel*math.sin(players[0].face*math.pi/180)
-        
+
         velx2 = vel*math.cos(enemies[0].face*math.pi/180)
         vely2 = vel*math.sin(enemies[0].face*math.pi/180)
 
@@ -358,9 +367,30 @@ def main():
 
         # players[0].move_bullet(walls,enemies)
         players[0].move_bullet(walls, enemies)
+        if(not enemies):
+            pygame.quit()
+            #Display enemy win screen
+            return
+        
         enemies[0].move_bullet(walls, players)
+
+        if(not players):
+            pygame.quit()
+            #Display player win screen
+            return
         # for enemy in enemies:
         #     enemy.move_bullet(walls, player)
         clock.tick(120)
 
-main()
+def screenDisplay():     
+    quit = False   
+    while(quit == False):
+        titleScreen = gui.TitleScreen()
+        if(titleScreen.mode == 1):
+            print('KILLED!')
+            init()
+            main()
+        elif(titleScreen.mode == 4):
+            quit = True
+
+screenDisplay()
